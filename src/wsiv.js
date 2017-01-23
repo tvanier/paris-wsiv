@@ -1,7 +1,7 @@
 
 'use strict';
 
-var soap = require('soap');
+var soap = require('strong-soap').soap;
 
 const defaults = {
     wsdlPath: './Wsiv.wsdl',
@@ -21,7 +21,7 @@ const init = (params = defaults) => {
     logger = params.logger;
 
     return new Promise((resolve, reject) => {
-        soap.createClient(params.wsdlPath, function(error, client) {
+        soap.createClient(params.wsdlPath, {}, function(error, client) {
             if (error) {
                 logger.log('init error', { error });
                 reject(error);
@@ -41,7 +41,7 @@ const callApiMethod = (method, methodArgs) => {
 
     return init().then((client) => {
         return new Promise((resolve, reject) => {
-            client[method](methodArgs, (error, result) => {
+            client.Wsiv.WsivSOAP11port_http[method](methodArgs, (error, result) => {
                 if (error) {
                     logger.log(method + ' error', { error });
                     reject(error);
@@ -50,6 +50,10 @@ const callApiMethod = (method, methodArgs) => {
 
                 resolve(result);
             });
+        })
+        .catch((error) => {
+            logger.log(method + ' error', { error });
+            throw error;
         });
     });
 };
@@ -100,25 +104,35 @@ const getStations = (filter = null) => {
 // };
 
 const getMissionsNext = (station, direction) => {
-    return callApiMethod('getMissionsNext', { station })
+    let methodArgs = {
+        station: {
+            id: station.id,
+            name: station.name
+        },
+        direction
+    };
+
+    return callApiMethod('getMissionsNext', methodArgs)
         .then((result) => {
-            if (result && result.ambiguityMessage) {
+            if (result.return && result.return.ambiguityMessage) {
                 throw new AmbiguityError(result.ambiguityMessage, result);
             }
 
             let missions = result ? result.return.missions : [];
             logger.log('getMissionsNext response', { missionsCount: missions.length })
             return missions;
-        })
-        .catch((error) => {
-            logger.log('getMissionsNext error caught', error);
-            //logger.log(soapClient.lastRequest);
-            throw error;
         });
 };
 
-const getMissionsFrequency = (station, direction, ...options) => {
-    return callApiMethod('getMissionsFrequency', station, direction)
+const getMissionsFrequency = (station) => {
+    let methodArgs = {
+        station: {
+            id: station.id,
+            name: station.name
+        }
+    };
+
+    return callApiMethod('getMissionsFrequency', methodArgs)
         .then((result) => {
             if (result && result.ambiguityMessage) {
                 throw new AmbiguityError(result.ambiguityMessage, result);

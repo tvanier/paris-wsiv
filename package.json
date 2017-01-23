@@ -1,18 +1,16 @@
 {
-  "name": "paris-rt-public-transit",
+  "name": "paris-wsiv",
   "version": "0.0.1-0",
   "author": "Thomas Vanier <thomas.vanier@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "webpack"
+    "build": "babel --presets=es2015 -d dist/ src/"
   },
   "dependencies": {
-    "soap": "^0.18.0"
+    "strong-soap": "^1.1.0"
   },
   "devDependencies": {
-    "babel-core": "^6.21.0",
-    "babel-loader": "^6.2.10",
-    "babel-preset-es2015": "^6.18.0",
-    "webpack": "^1.14.0"
+    "babel-cli": "^6.22.2",
+    "babel-preset-es2015": "^6.18.0"
   }
 }
