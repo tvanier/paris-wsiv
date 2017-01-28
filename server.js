@@ -1,6 +1,14 @@
 var wsiv = require('./dist/wsiv');
 
-wsiv.getVersion()
+var options = {
+    wsdlPath: __dirname + '/./Wsiv.wsdl',
+    endpoint: process.env.ENDPOINT
+};
+
+wsiv.init(options)
+    .then(function() {
+        return wsiv.getVersion();
+    })
     .then((version) => {
         console.log('got version', version);
     })

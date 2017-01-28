@@ -4,7 +4,8 @@
 var soap = require('strong-soap').soap;
 
 var defaults = {
-    wsdlPath: './Wsiv.wsdl',
+    wsdlPath: '',
+    endpoint: '',
     logger: {
         log: console.log.bind(console, 'wsiv')
     }
@@ -13,8 +14,8 @@ var defaults = {
 var soapClient = void 0;
 var logger = defaults.logger;
 
-var init = function init() {
-    var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : defaults;
+var init = function init(params) {
+    params = Object.assign({}, defaults, params);
 
     if (soapClient) {
         return Promise.resolve(soapClient);
@@ -32,6 +33,10 @@ var init = function init() {
 
             logger.log('init success');
             logger.log(client.describe());
+            if (params.endpoint) {
+                logger.log('setEndpoint', params.endpoint);
+                client.setEndpoint(params.endpoint);
+            }
             soapClient = client;
             resolve(client);
         });
