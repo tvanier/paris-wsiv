@@ -95,6 +95,9 @@ var getStations = function getStations() {
 
     return callApiMethod('getStations', filter).then(function (result) {
         var stations = result ? result.return.stations : [];
+        if (!Array.isArray(stations)) {
+            stations = [stations];
+        }
         logger.log('getStations success', { filter: filter, stationsCount: stations.length });
         return stations;
     });

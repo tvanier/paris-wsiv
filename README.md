@@ -4,29 +4,71 @@
 `wsiv` stands for Web Service "Information Voyageur", French for "Travel Information". It provides real-time information on the Paris public transit system and traffic.
 This web service is provided by the [RATP](https://en.wikipedia.org/wiki/RATP_Group) (Paris public transit operator), as part of their [Open Data](http://www.ratp.fr/en/ratp/r_70350/open-data/) initiative.
 
-wsiv web site (in French): https://data.ratp.fr/page/temps-reel/
+wsiv web site (in French): [https://data.ratp.fr/page/temps-reel/](https://data.ratp.fr/page/temps-reel/)
 
 DISCLAIMER: this project is not affiliated to the RATP, and
 is provided as-is with no official support.
 
-This package is meant to run on an "edge server", to access the soap-based wsiv through a simple HTTP REST API.
+This package is primarily meant to run on an "edge server", to access the soap-based wsiv through a simple HTTP REST API.
 
 ## API
 
-- `/about`
-    - returns this package version and the wsiv version information
-- `/stations`
-    - returns a list of stations
-    - `/stations?name={name}`
-    - `/stations?id={id}`
-- `/lines/{line-id}`
-    - returns a line
-- `/directions/line/{line-id}`
-    - returns the direction for a line
-- `/missions-next/station/{station-id}?direction={direction}`
-    - return the next missions at a station
+- `/about`: returns this package version and the wsiv version information
+- `/stations`: returns a list of stations
+- `/lines`: returns a line
+- `/directions/line`: returns the direction(s) for a line
+- `/missions-next/station`: returns the next missions (trains) at a station
 
 All responses content type is `application/json`.
+
+### About
+
+Returns some version information
+```
+GET /about
+{"version":"2.6.1 / 20170130"}
+```
+
+### Get stations
+
+Stations can be retrieved by name, id, line or geopoint.
+
+#### Get stations by name
+
+`/stations/name?q={name}` where `{name}` is a station name pattern
+
+```
+GET /stations/name?q=opera
+[...22 stations...]
+```
+`{name}` can contain the `*` wildcard, either starts with: `opera*`, ends with: `*opera` or contains: `*opera*`
+
+```
+GET /stations/name?q=opera*
+[...31 stations...]
+```
+
+Search criteria can be AND'ed with the `+` sign:
+```
+GET /stations/name?q=opera*+*rue*`
+[{"id":"-4008283","name":"Opera Rue de la Paix",...}]
+```
+
+### Get station by id
+
+`/stations/id?q={id}` where `{id}` identifies one given station
+
+returns an empty or single-item array
+
+Example:
+```
+GET /stations/id?q=-4008283
+[{"id":"-4008283","name":"Opera Rue de la Paix",...}]
+```
+
+### Get stations by geo endpoint
+
+`/stations/geopoint` not implemented yet
 
 ## Development
 - install [Node.js](https://nodejs.org) version 4 or greater

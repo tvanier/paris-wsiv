@@ -96,6 +96,9 @@ const getStations = (filter = null) => {
     return callApiMethod('getStations', filter)
         .then((result) => {
             let stations = result ? result.return.stations : [];
+            if (!Array.isArray(stations)) {
+                stations = [stations];
+            }
             logger.log('getStations success', { filter, stationsCount: stations.length });
             return stations;
         });
