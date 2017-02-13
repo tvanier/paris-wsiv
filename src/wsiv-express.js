@@ -14,17 +14,12 @@ app.get('/about', (req, res, next) => {
         });
 });
 
-app.get('/stations/id', (req, res, next) => {
-    if (!req.query.q) {
-        res.sendStatus(404);
-        return;
-    }
-
-    wsiv.getStations({ station: { id: req.query.q }})
-        .then((stations) => {
-            res.send(stations);
-        });
-});
+// app.get('/stations/id/:id', (req, res, next) => {
+//     wsiv.getStations({ station: { id: req.params.id }})
+//         .then((stations) => {
+//             res.send(stations);
+//         });
+// });
 
 app.get('/stations/line', (req, res, next) => {
     if (!req.query.q) {
@@ -44,11 +39,18 @@ app.get('/stations/name', (req, res, next) => {
         return;
     }
 
-    const name = req.query.q.replace(/\s/g, ' and ');
+    let name = req.query.q;
+    if (Array.isArray(req.query.q)) {
+        name = req.query.q.join(' and ');
+    }
+
     wsiv.getStations({ station: { name }})
         .then((stations) => {
             res.send(stations);
-        });
+        })
+        .catch((error) => {
+            res.status(500).send({ error });
+        })
 });
 
 app.get('/stations/geopoint', (req, res) => {

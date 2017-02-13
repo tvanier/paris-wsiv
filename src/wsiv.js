@@ -49,6 +49,8 @@ const callApiMethod = (method, methodArgs) => {
     return init().then((client) => {
         return new Promise((resolve, reject) => {
             client.Wsiv.WsivSOAP11port_http[method](methodArgs, (error, result) => {
+                logger.log(client.lastRequest);
+                
                 if (error) {
                     logger.log(method + ' error', { error });
                     reject(error);

@@ -35,7 +35,7 @@ Stations can be retrieved by name, id, line or geopoint.
 
 #### Get stations by name
 
-`/stations/name?q={name}` where `{name}` is a station name pattern
+`/stations/name?q={name}` where `{name}` is a station name expression
 
 ```
 GET /stations/name?q=opera
@@ -48,21 +48,21 @@ GET /stations/name?q=opera*
 [...31 stations...]
 ```
 
-Search criteria can be AND'ed with the `+` sign:
+Multiple name expression can be AND'ed with several `q` query parameters
 ```
-GET /stations/name?q=opera*+*rue*`
+GET /stations/name?q=opera*&q=*rue*`
 [{"id":"-4008283","name":"Opera Rue de la Paix",...}]
 ```
 
 ### Get station by id
 
-`/stations/id?q={id}` where `{id}` identifies one given station
+`/stations/id/{id}` where `{id}` identifies one given station
 
 returns an empty or single-item array
 
 Example:
 ```
-GET /stations/id?q=-4008283
+GET /stations/id/-4008283
 [{"id":"-4008283","name":"Opera Rue de la Paix",...}]
 ```
 
@@ -93,5 +93,5 @@ On the proxy server (wsiv registered URL):
 
 Example:
 IP 1.2.3.4 is a registered wsiv URL. After starting `npm run proxy` on 1.2.3.4 as explained above,
-it is possible to develop locally by setting the PROXY environment variable
-`PROXY=1.2.3.4 npm run dev`
+it is possible to develop locally by setting the `ENDPOINT` environment variable
+`ENDPOINT=1.2.3.4 npm run dev`

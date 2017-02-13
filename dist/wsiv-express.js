@@ -15,16 +15,12 @@ app.get('/about', function (req, res, next) {
     });
 });
 
-app.get('/stations/id', function (req, res, next) {
-    if (!req.query.q) {
-        res.sendStatus(404);
-        return;
-    }
-
-    wsiv.getStations({ station: { id: req.query.q } }).then(function (stations) {
-        res.send(stations);
-    });
-});
+// app.get('/stations/id/:id', (req, res, next) => {
+//     wsiv.getStations({ station: { id: req.params.id }})
+//         .then((stations) => {
+//             res.send(stations);
+//         });
+// });
 
 app.get('/stations/line', function (req, res, next) {
     if (!req.query.q) {
@@ -43,9 +39,15 @@ app.get('/stations/name', function (req, res, next) {
         return;
     }
 
-    var name = req.query.q.replace(/\s/g, ' and ');
+    var name = req.query.q;
+    if (Array.isArray(req.query.q)) {
+        name = req.query.q.join(' and ');
+    }
+
     wsiv.getStations({ station: { name: name } }).then(function (stations) {
         res.send(stations);
+    }).catch(function (error) {
+        res.status(500).send({ error: error });
     });
 });
 

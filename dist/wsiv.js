@@ -49,6 +49,8 @@ var callApiMethod = function callApiMethod(method, methodArgs) {
     return init().then(function (client) {
         return new Promise(function (resolve, reject) {
             client.Wsiv.WsivSOAP11port_http[method](methodArgs, function (error, result) {
+                logger.log(client.lastRequest);
+
                 if (error) {
                     logger.log(method + ' error', { error: error });
                     reject(error);
