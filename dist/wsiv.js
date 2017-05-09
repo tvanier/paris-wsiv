@@ -94,12 +94,21 @@ var getDirections = function getDirections(line) {
 
 var getStations = function getStations() {
     var filter = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : null;
+    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
-    return callApiMethod('getStations', filter).then(function (result) {
-        var stations = result ? result.return.stations : [];
-        if (!Array.isArray(stations)) {
-            stations = [stations];
-        }
+    logger.log('getStations', { filter: filter, options: options });
+    var criteria = { station: filter };
+    if (options.limit) {
+        criteria.limit = options.limit;
+    }
+    if (options.sortAlpha) {
+        criteria.sortAlpha = options.sortAlpha;
+    }
+
+    return callApiMethod('getStations', criteria).then(function (result) {
+        var stations = [].concat(result.return.stations).filter(function (s) {
+            return !!s;
+        });
         logger.log('getStations success', { filter: filter, stationsCount: stations.length });
         return stations;
     });

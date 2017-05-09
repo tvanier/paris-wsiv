@@ -7,57 +7,57 @@ app.on('mount', () => {
     console.log('app mounted');
 });
 
+// lower case all query parameters
+app.use(function(req, res, next) {
+  for (var key in req.query) {
+    req.query[key.toLowerCase()] = req.query[key];
+  }
+  next();
+});
+
 app.get('/about', (req, res, next) => {
     wsiv.getVersion()
-        .then((version) => {
+        .then(version => {
             res.send({ version });
         });
 });
 
-// app.get('/stations/id/:id', (req, res, next) => {
-//     wsiv.getStations({ station: { id: req.params.id }})
-//         .then((stations) => {
-//             res.send(stations);
-//         });
-// });
-
-app.get('/stations/line', (req, res, next) => {
-    if (!req.query.q) {
-        res.sendStatus(404);
-        return;
-    }
-
-    wsiv.getStations({ station: { line: { id: req.query.q }}})
+app.get('/stations/:id', (req, res) => {
+    wsiv.getStations({ id: req.params.id })
         .then((stations) => {
-            res.send(stations);
+            if (!stations || stations.length !== 1) {
+                res.sendStatus(404);
+                return;
+            }
+
+            res.send(stations[0]);
+        })
+        .catch(error => {
+            res.status(500).send({ error });
         });
 });
 
-app.get('/stations/name', (req, res, next) => {
-    if (!req.query.q) {
-        res.sendStatus(404);
-        return;
+app.get('/stations', (req, res) => {
+    let name = req.query.name;
+    if (Array.isArray(req.query.name)) {
+        name = req.query.name.join(' and ');
     }
 
-    let name = req.query.q;
-    if (Array.isArray(req.query.q)) {
-        name = req.query.q.join(' and ');
-    }
+    let line = { id: req.query.lineid };
 
-    wsiv.getStations({ station: { name }})
-        .then((stations) => {
+    const limit = req.query.limit;
+    const sortAlpha = (req.query.sortalpha === '');
+
+    wsiv.getStations({ line, name }, { limit,  sortAlpha })
+        .then(stations => {
             res.send(stations);
         })
-        .catch((error) => {
+        .catch(error => {
             res.status(500).send({ error });
         })
 });
 
-app.get('/stations/geopoint', (req, res) => {
-    res.send(501);
-});
-
-app.get('/lines/id/:id', (req, res) => {
+app.get('/lines/:id', (req, res) => {
     wsiv.getLines({ line: { id: req.params.id }})
         .then((lines) => {
             res.send(lines);

@@ -50,7 +50,7 @@ const callApiMethod = (method, methodArgs) => {
         return new Promise((resolve, reject) => {
             client.Wsiv.WsivSOAP11port_http[method](methodArgs, (error, result) => {
                 logger.log(client.lastRequest);
-                
+
                 if (error) {
                     logger.log(method + ' error', { error });
                     reject(error);
@@ -94,13 +94,15 @@ const getDirections = (line) => {
         });
 };
 
-const getStations = (filter = null) => {
-    return callApiMethod('getStations', filter)
+const getStations = (filter = null, options = {}) => {
+    logger.log('getStations', { filter, options });
+    const criteria = { station: filter };
+    if (options.limit) { criteria.limit = options.limit; }
+    if (options.sortAlpha) { criteria.sortAlpha = options.sortAlpha; }
+
+    return callApiMethod('getStations', criteria)
         .then((result) => {
-            let stations = result ? result.return.stations : [];
-            if (!Array.isArray(stations)) {
-                stations = [stations];
-            }
+            let stations = [].concat(result.return.stations); //.filter(s => !!s);
             logger.log('getStations success', { filter, stationsCount: stations.length });
             return stations;
         });

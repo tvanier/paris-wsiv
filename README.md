@@ -35,16 +35,16 @@ Stations can be retrieved by name, id, line or geopoint.
 
 #### Get stations by name
 
-`/stations/name?q={name}` where `{name}` is a station name expression
+`/stations?name={name}` where `{name}` is a station name expression
 
 ```
-GET /stations/name?q=opera
+GET /stations?name=opera
 [...22 stations...]
 ```
-`{name}` can contain the `*` wildcard, either starts with: `opera*`, ends with: `*opera` or contains: `*opera*`
+`{name}` can contain the `*` wildcard, either starts with: `opera*`, ends with: `*opera`
 
 ```
-GET /stations/name?q=opera*
+GET /stations?name=opera*
 [...31 stations...]
 ```
 
@@ -56,19 +56,23 @@ GET /stations/name?q=opera*&q=*rue*`
 
 ### Get station by id
 
-`/stations/id/{id}` where `{id}` identifies one given station
+`/stations/{id}` where `{id}` identifies one given station
 
 returns an empty or single-item array
 
 Example:
 ```
-GET /stations/id/-4008283
+GET /stations/-4008283
 [{"id":"-4008283","name":"Opera Rue de la Paix",...}]
 ```
 
+### Get stations by line
+
+`/stations?line=`
+
 ### Get stations by geo endpoint
 
-`/stations/geopoint` not implemented yet
+`/stations?geopoint` not implemented yet
 
 ## Development
 - install [Node.js](https://nodejs.org) version 4 or greater

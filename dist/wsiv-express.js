@@ -9,53 +9,52 @@ app.on('mount', function () {
     console.log('app mounted');
 });
 
+// lower case all query parameters
+app.use(function (req, res, next) {
+    for (var key in req.query) {
+        req.query[key.toLowerCase()] = req.query[key];
+    }
+    next();
+});
+
 app.get('/about', function (req, res, next) {
     wsiv.getVersion().then(function (version) {
         res.send({ version: version });
     });
 });
 
-// app.get('/stations/id/:id', (req, res, next) => {
-//     wsiv.getStations({ station: { id: req.params.id }})
-//         .then((stations) => {
-//             res.send(stations);
-//         });
-// });
+app.get('/stations/:id', function (req, res) {
+    wsiv.getStations({ id: req.params.id }).then(function (stations) {
+        if (!stations || stations.length !== 1) {
+            res.sendStatus(404);
+            return;
+        }
 
-app.get('/stations/line', function (req, res, next) {
-    if (!req.query.q) {
-        res.sendStatus(404);
-        return;
-    }
-
-    wsiv.getStations({ station: { line: { id: req.query.q } } }).then(function (stations) {
-        res.send(stations);
+        res.send(stations[0]);
+    }).catch(function (error) {
+        res.status(500).send({ error: error });
     });
 });
 
-app.get('/stations/name', function (req, res, next) {
-    if (!req.query.q) {
-        res.sendStatus(404);
-        return;
+app.get('/stations', function (req, res) {
+    var name = req.query.name;
+    if (Array.isArray(req.query.name)) {
+        name = req.query.name.join(' and ');
     }
 
-    var name = req.query.q;
-    if (Array.isArray(req.query.q)) {
-        name = req.query.q.join(' and ');
-    }
+    var line = { id: req.query.lineid };
 
-    wsiv.getStations({ station: { name: name } }).then(function (stations) {
+    var limit = req.query.limit;
+    var sortAlpha = req.query.sortalpha === '';
+
+    wsiv.getStations({ line: line, name: name }, { limit: limit, sortAlpha: sortAlpha }).then(function (stations) {
         res.send(stations);
     }).catch(function (error) {
         res.status(500).send({ error: error });
     });
 });
 
-app.get('/stations/geopoint', function (req, res) {
-    res.send(501);
-});
-
-app.get('/lines/id/:id', function (req, res) {
+app.get('/lines/:id', function (req, res) {
     wsiv.getLines({ line: { id: req.params.id } }).then(function (lines) {
         res.send(lines);
     });
